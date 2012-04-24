@@ -1,10 +1,15 @@
 jquery.processing.js
 ====================
 
-This is a jQuery plugin for using [Processing.js](http://processingjs.org/) more easily.
+jquery.processing.js is a [jQuery](http://jquery.com/) plugin for using [Processing.js](http://processingjs.org/) more easily.
+
+This plugin is licensed under [the MIT License](http://www.opensource.org/licenses/mit-license.php);
+
 
 Usage
 -----
+
+### Basic
 
 ```javascript
 $("canvas").processing({
@@ -22,6 +27,40 @@ $("canvas").processing({
   }
 });
 ```
+
+### Advanced
+
+You can use a simple scene management system.
+
+```javascript
+$("canvas").processing_ex({
+  // "start" is the first scene.
+  start: {
+    setup: function(p) {
+      p.size(200, 200);
+      // change the next scene
+      return "foo";
+    }
+  },
+  foo: {
+    setup: function(p) {
+      this.i = 0;
+    },
+    draw: function(p) {
+      p.println(this.i++);
+    }
+  }
+});
+```
+
+Change Log
+----------
+
+### 2012/04/23 (v1.0.0)
+* release first version
+
+### 2012/04/24 (v1.1.0)
+* add ex method ($.processing_ex)
 
 
 
