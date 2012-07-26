@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<title>jquery.processing.js</title>
+		<script src="processing.js"></script>
+		<script src="jquery.js"></script>
+		<script src="../jquery.processing.js"></script>
+		<script>
+$(function() {
+
+	var extend = function(obj, func) {
+		var F = function() {}
+		F.prototype = obj;
+		var f = new F();
+		if (func) func.call(f);
+		return f;
+	}
+	
+	//------------------------------------------------
+	
+	var Scene = extend(Object, function() {
+		this.name = null;
+		
+		this.__draw = function(p) {
+			this.update(p);
+			this.draw(p);
+		};
+		
+		this.setup = function(p) {};
+		this.draw = function(p) {};
+		this.update = function(p) {};
+	});
+	
+	var Main = extend(Scene, function() {
+	
+		var WIDTH = 400;
+		var HEIGHT = 300;
+		
+		var r = 70;
+		var dr = 2;
+		var MIN_R = r * 0.9;
+		var MAX_R = r * 1.1;
+		var x = WIDTH / 2;
+		var y = HEIGHT / 2;
+		var destX = x;
+		var destY = y;
+		var DELAY = 0.1;
+	
+		this.setup = function(p) {
+			p.frameRate(10);
+			p.size(WIDTH, HEIGHT);
+			
+		}
+		
+		this.update = function(p) {
+			// update
+			r += dr;
+			if (r <= MIN_R || r >= MAX_R)
+				dr = -dr
+			x += (destX - x) * DELAY;
+			y += (destY - y) * DELAY;
+		}
+		
+		this.draw = function(p) {
+			p.background(220, 220, 220);
+			// draw
+			p.noStroke();
+			p.fill(255, 255, 255);
+			p.ellipse(x, y, r, r);
+			p.fill(130, 130, 230);
+			p.ellipse(x, y, r * 0.75, r * 0.75);
+		}
+		
+		this.mouseMoved = function(p) {
+			destX = p.mouseX;
+			destY = p.mouseY;
+		}
+		
+		this.keyPressed = function(p) {
+			if (p.keyCode == ' '.charCodeAt())
+				p.noLoop();
+		}
+	});
+	
+	//------------------------------------------------
+
+	var canvas = $("canvas").processing_ex({
+		entry: extend(Main)
+	}, {
+		start: "entry",
+		eventMapping: {draw: "__draw"}
+	});
+
+});
+		</script>
+	</head>
+	<body>
+		<canvas></canvas>
+	</body>
+</html>
+
+
+

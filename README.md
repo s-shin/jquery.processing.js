@@ -53,14 +53,32 @@ $("canvas").processing_ex({
 });
 ```
 
+You can also use some configurations.
+
+```javascript
+$("canvas").processing_ex({
+  entry: {
+    initialize: function(p) {
+      p.size(200, 200);
+      // ...
+    }
+  }
+}, {
+  start: "entry", eventMapping: { setup: "initialize" }
+});
+```
+
 Change Log
 ----------
 
-### 2012/04/23 (v1.0.0)
-* release first version
+### 2012/07/26 (v2.0.0)
+* Some configurations become available in $.fn.processing_ex.
 
 ### 2012/04/24 (v1.1.0)
 * add ex method ($.processing_ex)
+
+### 2012/04/23 (v1.0.0)
+* release first version
 
 
 
