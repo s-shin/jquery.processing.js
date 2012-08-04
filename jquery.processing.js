@@ -1,5 +1,5 @@
 /**
- * jquery.processing.js v2.0.0
+ * jquery.processing.js v3.0.0
  * (C) 2012 shin <s2pch.luck at gmail.com>
  * MIT License
  */
@@ -14,16 +14,10 @@
 				  "keyPressed", "keyReleased"];
 	
 	/**
-	 * Simple extension for processing.js
-	 * @example
-	 * $("canvas.target").processing({
-	 *     setup: function(p) { ... },
-	 *     draw: function(p) { ... },
-	 *     ...
-	 * });
+	 * simple wrapper for processing.js
 	 */
-	$.fn.processing = function(sketch) {
-		return this.each(function() {
+	var processing = function(targets, sketch) {
+		return targets.each(function() {
 			// "this" is <canvas>
 			$(this).data("jquery-processing",
 				new Processing(this, function(p) {
@@ -34,53 +28,41 @@
 				})
 			);
 		});
-	}
+	};
 	
 	/**
-	 * Simple extension with scene management system
-	 * @example
-	 * $("canvas.target").processing_ex({
-	 *     entry: { setup: function(p) { return "main"; } },
-	 *     main: { update: function(p) { p.background(0); } }
-	 * }, {
-	 *     start: "entry",
-	 *     eventMapping: { draw: "update" }
-	 * });
+	 * with simple scene management system
 	 */
-	$.fn.processing_ex = function(scenes, config) {
+	var processing_ex = function(targets, start, config_) {
 		// make configuration
 		var config = $.extend(true, {
-			// starting event
-			start: "start",
 			// mapping of event function name
 			eventMapping: (function() {
-				var r = {}
+				var r = {};
 				for (var i = 0; i < EVENTS.length; ++i)
 					r[EVENTS[i]] = EVENTS[i];
 				return r; // { setup: "setup", draw: "draw", ... }
 			})()
-		}, config);
+		}, config_);
 		
 		// create scene driven sketch
 		var sketch = {};
-		var current = config.start;
+		var current = start;
 		var eventMapping = config.eventMapping;
 		
 		$.each(EVENTS, function(k, v) {
 			sketch[v] = function(p) {
 				var currentSketch, eventFunc, nextSketch, setupFunc;
 				var next, next2;
-				currentSketch = scenes[current];
-				eventFunc = currentSketch[eventMapping[v]]
+				eventFunc = current[eventMapping[v]];
 				if (eventFunc) {
-					next = eventFunc.call(currentSketch, p);
+					next = eventFunc.call(current, p);
 					if (next) {
 						do {
 							next2 = null;
-							nextSketch = scenes[next];
-							setupFunc = nextSketch[eventMapping["setup"]];
+							setupFunc = next[eventMapping["setup"]];
 							if (setupFunc) {
-								next2 = setupFunc.call(nextSketch, p);
+								next2 = setupFunc.call(next, p);
 								if (next2)
 									next = next2;
 							}
@@ -88,13 +70,102 @@
 						current = next;
 					}
 				}
-			}
+			};
 		});
 		
-		// register with $.fn.processing
-		return this.processing(sketch);
-	}
+		return processing(targets, sketch);
+	};
 
+	//---------------------------------------------
+
+	/**
+	 * KeyInput Management
+	 * This is used for detection of multiple keys
+	 */
+	var Key = function() {
+		this.key = {};
+	};
+	Key.prototype = {
+		constructor: Key,
+		press: function(k) {
+			this.key[this.getCode(k)] = true;
+		},
+		release: function(k) {
+			this.key[this.getCode(k)] = false;
+		},
+		isPressed: function(k) {
+			return this.key[this.getCode(k)];
+		},
+		getCode: function(k) {
+			if (typeof(k) == "string")
+				k = k.toUpperCase().charCodeAt();
+			return k;
+		}
+	};
+
+	var key = new Key();
+
+	/**
+	 * Base Scene
+	 * hacking processing
+	 */
+	var Scene = function() {};
+	Scene.prototype = {
+		constructor: Scene, // for CoffeeScript
+		/** @private */
+		__draw: function(p) {
+			return this.update(p) || this.draw(p);
+		},
+		/** @private */
+		__keyPressed: function(p) {
+			key.press(p.keyCode);
+			return this.keyPressed(p);
+		},
+		/** @private */
+		__keyReleased: function(p) {
+			key.release(p.keyCode);
+			return this.keyReleased(p);
+		},
+		update: function(p) {},
+		draw: function(p) {},
+		keyPressed: function(p) {},
+		keyReleased: function(p) {}
+	};
+
+	$.processing = {
+		framework: { Scene: Scene, key: key }
+	};
+
+	//-----------------------------------------------
+
+	/**
+	 * jQuery plugin for processing.js
+	 */
+	$.fn.processing = function() {
+		if (arguments.length < 1) {
+			console.error("$().processing need more than one argument.");
+			return null;
+		}
+		var op = arguments[0];
+		if (typeof op !== "string")
+			return processing(this, arguments[0]);
+		if (op === "simple")
+			return processing(this, arguments[1]);
+		if (op === "scene")
+			return processing_ex(this, arguments[1], arguments[2]);
+		if (op === "framework") {
+			var config = $.extend(true, arguments[2], {
+				eventMapping: {
+					draw: "__draw",
+					keyPressed: "__keyPressed",
+					keyReleased: "__keyReleased"
+				}
+			});
+			return processing_ex(this, arguments[1], config);
+		}
+		console.error("invalid operation");
+		return null;
+	};
 
 })(jQuery);
 

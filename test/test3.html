@@ -85,10 +85,7 @@ $(function() {
 	
 	//------------------------------------------------
 
-	var canvas = $("canvas").processing_ex({
-		entry: extend(Main)
-	}, {
-		start: "entry",
+	var canvas = $("canvas").processing("scene", extend(Main), {
 		eventMapping: {draw: "__draw"}
 	});
 

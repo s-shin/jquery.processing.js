@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<title>jquery.processing.js</title>
+		<script src="processing.js"></script>
+		<script src="jquery.js"></script>
+		<script src="../jquery.processing.js"></script>
+		<script>
+$(function() {
+	var framework = $.processing.framework;
+
+	function extend(s, c) {
+		function f() {}
+		f.prototype = s.prototype;
+		c.prototype = new f();
+		c.prototype.__super__ = s.prototype;
+		c.prototype.__super__.constructor = s;
+		return c;
+	};
+
+	var FirstScene = extend(framework.Scene, function() {});
+	FirstScene.prototype.setup = function(p) {
+		p.size(300, 300);
+		return new SecondScene();
+	};
+
+	var SecondScene = extend(framework.Scene, function() {});
+	SecondScene.prototype.draw = function(p) {
+		p.background(0);
+	};
+
+	$("canvas").processing("framework", new FirstScene());
+});
+		</script>
+	</head>
+	<body>
+		<canvas></canvas>
+	</body>
+</html>
+

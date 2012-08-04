@@ -17,7 +17,7 @@ $(function() {
 				p.size(200, 200);
 				p.frameRate(30);
 				font = p.loadFont("Arial");
-				return "foo";
+				return scenes.foo;
 			}
 		},
 		foo: {
@@ -39,7 +39,7 @@ $(function() {
 				this.i++;
 			},
 			mouseClicked: function(p) {
-				return "bar";
+				return scenes.bar;
 			}
 		},
 		bar: {
@@ -51,7 +51,7 @@ $(function() {
 		}
 	};
 
-	$("canvas").processing_ex(scenes);
+	$("canvas").processing("scene", scenes.start);
 
 });
 		</script>

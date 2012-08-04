@@ -12,64 +12,92 @@ Usage
 ### Basic
 
 ```javascript
-$("canvas").processing({
-  setup: function(p) {
-    p.size(400, 300);
-    // ...
-  },
-  draw: function(p) {
-    p.background(0);
-    // ...
-  },
-  mouseClicked: function(p) {
-    p.println(p.mouseButton);
-    // ...
-  }
+$(function() {
+  // $("canvas").processing("simple", {
+  // or
+  $("canvas").processing({
+    setup: function(p) {
+      p.size(400, 300);
+      // ...
+    },
+    draw: function(p) {
+      p.background(0);
+      // ...
+    },
+    mouseClicked: function(p) {
+      p.println(p.mouseButton);
+      // ...
+    }
+  });
 });
 ```
 
-### Advanced
+### Simple Scene Management System
 
 You can use a simple scene management system.
 
 ```javascript
-$("canvas").processing_ex({
-  // "start" is the first scene.
-  start: {
-    setup: function(p) {
-      p.size(200, 200);
-      // change the next scene
-      return "foo";
-    }
-  },
-  foo: {
-    setup: function(p) {
-      this.i = 0;
+$(function() {
+  var scenes = {
+    entry: {
+      setup: function(p) {
+        p.size(200, 200);
+        // change the next scene
+        return scenes.foo;
+      }
     },
-    draw: function(p) {
-      p.println(this.i++);
+    foo: {
+      setup: function(p) {
+        this.i = 0;
+      },
+      draw: function(p) {
+        p.println(this.i++);
+      }
     }
-  }
+  };
+  $("canvas").processing("scene", scenes.entry);
 });
 ```
 
 You can also use some configurations.
 
 ```javascript
-$("canvas").processing_ex({
-  entry: {
-    initialize: function(p) {
-      p.size(200, 200);
-      // ...
-    }
+$(function() {
+  var scenes = {
+    start: { initialize: function(p) { ... } }, ...
   }
-}, {
-  start: "entry", eventMapping: { setup: "initialize" }
+  $("canvas").processing("scene", scenes.start, {
+    eventMapping: { setup: "initialize" }
+  });
 });
 ```
 
+### Useful Framework
+
+An useful framework is exported as `$.processing.framework`.
+
+This super scene class, `$.processing.framework.Scene`, is available to common prototype-based inheritance mechanism (ex. YUI's extend, CoffeeScript).
+
+```coffeescript
+framework = $.processing.framework
+
+class Start extends framework.Scene
+      draw: (p) ->
+      	    p.background 255
+      	    p.background 200 if framework.key.isPressed p.UP
+
+$ -> $("canvas").processing "framework", new Start
+```
+
+
 Change Log
 ----------
+
+### 2012/08/03 (v3.0.0)
+* some big changes
+    - unify functions to $.fn.processing
+    - change the scene management system
+    - implement the useful framework ($.processing.framework)
 
 ### 2012/07/26 (v2.0.0)
 * Some configurations become available in $.fn.processing_ex.
