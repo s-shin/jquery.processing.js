@@ -1,7 +1,7 @@
 jquery.processing.js
 ====================
 
-jquery.processing.js is a [jQuery](http://jquery.com/) plugin for using [Processing.js](http://processingjs.org/) more easily.
+jquery.processing.js is a [jQuery](http://jquery.com/) plugin to use [Processing.js](http://processingjs.org/) more easily.
 
 This plugin is licensed under [the MIT License](http://www.opensource.org/licenses/mit-license.php);
 
@@ -88,6 +88,8 @@ class Start extends framework.Scene
 
 $ -> $("canvas").processing "framework", new Start
 ```
+
+A sample game using this framework is [here](http://s-shin.github.com/snakegame/).
 
 
 Change Log
